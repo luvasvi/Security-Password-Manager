@@ -13,40 +13,63 @@ public class DataBaseSecurity {
     }
 
     static {
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             Statement stmt = conn.createStatement()) {
-            String sql = "CREATE TABLE IF NOT EXISTS credentials (service TEXT, username TEXT, password TEXT)";
-            stmt.execute(sql);
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "CREATE TABLE IF NOT EXISTS credentials (service TEXT, username TEXT, password TEXT)"
+             )) {
+            pstmt.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao criar a tabela: " + e.getMessage());
         }
     }
 
     public static void save(Credential cred) {
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement pstmt = conn.prepareStatement("INSERT INTO credentials(service, username, password) VALUES (?, ?, ?)")) {
+        String sql = "INSERT INTO credentials(service, username, password) VALUES (?, ?, ?)";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, cred.getService());
             pstmt.setString(2, cred.getUsername());
             pstmt.setString(3, cred.getEncryptedPassword());
             pstmt.executeUpdate();
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao salvar credencial: " + e.getMessage());
+        }
+    }
+
+    public static boolean credentialExists(String service, String username) {
+        String sql = "SELECT 1 FROM credentials WHERE LOWER(service) = LOWER(?) AND LOWER(username) = LOWER(?)";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, service);
+            pstmt.setString(2, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next(); // Existe uma credencial igual
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao verificar duplicidade: " + e.getMessage());
+            return false;
         }
     }
 
     public static List<Credential> getAll() {
         List<Credential> creds = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM credentials")) {
+        String sql = "SELECT service, username, password FROM credentials";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                creds.add(new Credential(rs.getString("service"), rs.getString("username"), rs.getString("password")));
+                creds.add(new Credential(
+                    rs.getString("service"),
+                    rs.getString("username"),
+                    rs.getString("password")
+                ));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao buscar credenciais: " + e.getMessage());
         }
         return creds;
     }
-
 }
