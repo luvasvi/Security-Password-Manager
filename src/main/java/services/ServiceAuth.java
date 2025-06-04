@@ -1,23 +1,21 @@
 package services;
-
 import java.io.*;
 import java.util.Scanner;
-
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
 
-public class AuthService {
+public class ServiceAuth {
     private final String masterPassword;
     private final GoogleAuthenticator gAuth;
-    private final Scanner scanner; // puxei direto do main
+    private final Scanner scanner;
     private String totpSecret;
     private static final String SECRET_FILE = "totp.secret";
 
-    // atualizei o construtor
-    public AuthService(String masterPassword, Scanner scanner) throws IOException {
+    
+    public ServiceAuth(String masterPassword, Scanner scanner) throws IOException {
         this.masterPassword = masterPassword;
-        this.scanner = scanner; // guardando o scanner recebido
+        this.scanner = scanner;
         this.gAuth = new GoogleAuthenticator();
         loadOrCreateTOTPSecret();
     }

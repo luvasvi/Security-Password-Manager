@@ -1,16 +1,15 @@
 package services;
-
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
-public class CryptoService {
+public class ServiceCrypto {
     private static final String algorithm = "AES";
     private final SecretKeySpec secretKey;
 
-    public CryptoService(String encryptionKey) {
+    public ServiceCrypto(String encryptionKey) {
         if (encryptionKey == null || encryptionKey.length() != 16) {
-            throw new IllegalArgumentException("A chave de criptografia deve ter exatamente 16 caracteres.");
+            throw new IllegalArgumentException("A chave de criptografia conter 16 caracteres.");
         }
 
         secretKey = new SecretKeySpec(encryptionKey.getBytes(), algorithm);

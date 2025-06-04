@@ -1,8 +1,7 @@
 package services;
-
 import java.security.SecureRandom;
 
-public class PasswordGenerator {
+public class GeneratorPassword {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
     private static final SecureRandom random = new SecureRandom();
 

@@ -1,12 +1,11 @@
 package services;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
 
-public class BreachChecker {
+public class CheckerBreach {
     public static boolean isBreached(String password) throws Exception {
         MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
         byte[] digest = sha1.digest(password.getBytes());
@@ -14,7 +13,7 @@ public class BreachChecker {
         for (byte b : digest) {
             hexString.append(String.format("%02X", b));
         }
-
+        
         String hash = hexString.toString();
         String prefix = hash.substring(0, 5);
         String suffix = hash.substring(5);

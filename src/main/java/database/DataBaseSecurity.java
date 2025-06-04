@@ -5,7 +5,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseService {
+public class DataBaseSecurity {
     private static final String DB_URL = "jdbc:sqlite:database.db";
 
     public static Connection connect() throws SQLException {

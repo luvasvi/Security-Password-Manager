@@ -2,20 +2,20 @@ package ui;
 
 import model.Credential;
 import services.*;
-import database.DatabaseService;
+import database.DataBaseSecurity;
 
 import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleUI {
-    private final AuthService authService;
-    private final CryptoService cryptoService;
-    private final Scanner scanner; // recebe do main
+    private final ServiceAuth authService;
+    private final ServiceCrypto cryptoService;
+    private final Scanner scanner; 
 
-    public ConsoleUI(AuthService authService, CryptoService cryptoService, Scanner scanner) {
+    public ConsoleUI(ServiceAuth authService, ServiceCrypto cryptoService, Scanner scanner) {
         this.authService = authService;
         this.cryptoService = cryptoService;
-        this.scanner = scanner; // ← atribui 
+        this.scanner = scanner; 
     }
 
     public void start() throws Exception {
@@ -38,7 +38,7 @@ public class ConsoleUI {
             switch (option) {
                 case 1 -> addCredential();
                 case 2 -> listCredentials();
-                case 3 -> System.out.println("Senha gerada: " + PasswordGenerator.generate(12));
+                case 3 -> System.out.println("Senha gerada: " + GeneratorPassword.generate(12));
             }
         } while (option != 4);
     }
@@ -51,17 +51,17 @@ public class ConsoleUI {
         System.out.print("Senha: ");
         String password = scanner.nextLine();
 
-        if (BreachChecker.isBreached(password)) {
-            System.out.println("⚠️  Essa senha já apareceu em vazamentos! Considere usar outra.");
+        if (CheckerBreach.isBreached(password)) {
+            System.out.println("Essa senha já apareceu em vazamentos! Pense utilizar outra senha ou pegue uma das nossas geradas.");
         }
 
         String encrypted = cryptoService.encrypt(password);
-        DatabaseService.save(new Credential(service, user, encrypted));
-        System.out.println("Credencial salva com sucesso.");
+        DataBaseSecurity.save(new Credential(service, user, encrypted));
+        System.out.println("Credencial salva com êxito.");
     }
 
     private void listCredentials() throws Exception {
-        List<Credential> creds = DatabaseService.getAll();
+        List<Credential> creds = DataBaseSecurity.getAll();
         for (Credential c : creds) {
             System.out.println(c + " | Senha (decifrada): " + cryptoService.decrypt(c.getEncryptedPassword()));
         }
