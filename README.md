@@ -127,6 +127,4 @@ Este projeto está licenciado sob a [MIT License](LICENSE).
 Contribuições são bem-vindas! Sinta-se à vontade para abrir *issues* ou *pull requests* com melhorias, sugestões ou correções.
 
 
-Contribuições são bem-vindas! Por favor, abra um *issue* ou envie um *pull request*.
-
 ```
