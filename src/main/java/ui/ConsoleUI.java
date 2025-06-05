@@ -7,17 +7,32 @@ import database.DataBaseSecurity;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Interface de linha de comando (CLI) para interação com o usuário.
+ * Permite autenticação, cadastro, listagem e geração de senhas.
+ */
 public class ConsoleUI {
     private final ServiceAuth authService;
     private final ServiceCrypto cryptoService;
     private final Scanner scanner;
 
+    /**
+     * Construtor que recebe os serviços e scanner para entrada.
+     * 
+     * @param authService Serviço de autenticação
+     * @param cryptoService Serviço de criptografia
+     * @param scanner Scanner para entrada do usuário
+     */
     public ConsoleUI(ServiceAuth authService, ServiceCrypto cryptoService, Scanner scanner) {
         this.authService = authService;
         this.cryptoService = cryptoService;
         this.scanner = scanner;
     }
 
+    /**
+     * Método principal que inicia a interface.
+     * Gerencia o fluxo de autenticação e menu principal.
+     */
     public void start() throws Exception {
         if (!authService.authenticate()) {
             System.out.println("Autenticação falhou. Encerrando aplicação.");
@@ -51,6 +66,10 @@ public class ConsoleUI {
         } while (option != 4);
     }
 
+    /**
+     * Método que adiciona uma nova credencial.
+     * Verifica se a credencial já existe, checa vazamentos e salva com criptografia.
+     */
     private void addCredential() throws Exception {
         System.out.print("Serviço: ");
         String service = scanner.nextLine().trim();
@@ -58,6 +77,7 @@ public class ConsoleUI {
         System.out.print("Usuário: ");
         String user = scanner.nextLine().trim();
 
+        // Verifica existência prévia da credencial
         if (DataBaseSecurity.credentialExists(service, user)) {
             System.out.println("Já existe uma credencial cadastrada para esse serviço e usuário.");
             return;
@@ -66,6 +86,7 @@ public class ConsoleUI {
         System.out.print("Senha: ");
         String password = scanner.nextLine();
 
+        // Verifica se a senha foi vazada
         if (CheckerBreach.isBreached(password)) {
             System.out.println("⚠ Essa senha já apareceu em vazamentos!");
             System.out.println("1. Cancelar");
@@ -78,11 +99,15 @@ public class ConsoleUI {
             }
         }
 
+        // Criptografa a senha e salva a credencial
         String encrypted = cryptoService.encrypt(password);
         DataBaseSecurity.save(new Credential(service, user, encrypted));
         System.out.println("Credencial salva com êxito.");
     }
 
+    /**
+     * Lista todas as credenciais armazenadas, mostrando a senha descriptografada.
+     */
     private void listCredentials() throws Exception {
         List<Credential> creds = DataBaseSecurity.getAll();
         if (creds.isEmpty()) {
@@ -92,7 +117,8 @@ public class ConsoleUI {
 
         for (Credential c : creds) {
             String decrypted = cryptoService.decrypt(c.getEncryptedPassword());
-            System.out.println("Serviço: " + c.getService() + ", Usuário: " + c.getUsername() + " | Senha (decifrada): " + decrypted);
+            System.out.println("Serviço: " + c.getService() + ", Usuário: " + c.getUsername() + 
+                               " | Senha (decifrada): " + decrypted);
         }
     }
 }
